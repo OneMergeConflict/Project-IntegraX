@@ -80,10 +80,10 @@ export const FindingsList: React.FC<FindingsListProps> = ({
       {/* Top Filter Bar: Tabs & Search */}
       <div className="p-4 sm:p-5 border-b border-neutral-200/80 bg-white space-y-3 flex-shrink-0">
         {/* Sleek Segmented Control Tabs */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs scrollbar-none">
+        <div className="flex flex-wrap items-center gap-1.5 text-xs">
           <button
             onClick={() => setActiveTab("all")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
+            className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
               activeTab === "all"
                 ? "bg-neutral-950 text-white shadow-2xs"
                 : "text-neutral-600 hover:text-black hover:bg-neutral-100"
@@ -99,7 +99,7 @@ export const FindingsList: React.FC<FindingsListProps> = ({
 
           <button
             onClick={() => setActiveTab("risk")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
+            className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
               activeTab === "risk"
                 ? "bg-neutral-950 text-white shadow-2xs"
                 : "text-neutral-600 hover:text-black hover:bg-neutral-100"
@@ -116,7 +116,7 @@ export const FindingsList: React.FC<FindingsListProps> = ({
 
           <button
             onClick={() => setActiveTab("deadline")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
+            className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
               activeTab === "deadline"
                 ? "bg-neutral-950 text-white shadow-2xs"
                 : "text-neutral-600 hover:text-black hover:bg-neutral-100"
@@ -133,7 +133,7 @@ export const FindingsList: React.FC<FindingsListProps> = ({
 
           <button
             onClick={() => setActiveTab("obligation")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
+            className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
               activeTab === "obligation"
                 ? "bg-neutral-950 text-white shadow-2xs"
                 : "text-neutral-600 hover:text-black hover:bg-neutral-100"
@@ -150,7 +150,7 @@ export const FindingsList: React.FC<FindingsListProps> = ({
 
           <button
             onClick={() => setActiveTab("key_clause")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
+            className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
               activeTab === "key_clause"
                 ? "bg-neutral-950 text-white shadow-2xs"
                 : "text-neutral-600 hover:text-black hover:bg-neutral-100"
