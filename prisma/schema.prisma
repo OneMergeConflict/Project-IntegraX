@@ -1,0 +1,155 @@
+// Prisma Schema for IntegraX - Legal & Business Document Intelligence Platform
+// Datasource: PostgreSQL
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum DocumentProcessingStatus {
+  PENDING
+  READING_DOCUMENT          // Step 1: Extracting text/pages
+  IDENTIFYING_CLAUSES       // Step 2: Finding payment/termination terms
+  EXTRACTING_OBLIGATIONS    // Step 3: Structuring data
+  CHECKING_EVIDENCE         // Step 4: Validating quotes against source text
+  PREPARING_REPORT          // Step 5: Finalizing synthesis
+  COMPLETED
+  FAILED
+}
+
+enum FindingType {
+  RISK
+  DEADLINE
+  OBLIGATION
+  KEY_CLAUSE
+}
+
+enum VerificationStatus {
+  VERIFIED
+  FAILED
+  UNVERIFIED
+}
+
+model Document {
+  id               String                   @id @default(uuid())
+  title            String
+  originalFilename String
+  fileUrl          String?
+  fileSizeBytes    Int                      @default(0)
+  pageCount        Int                      @default(1)
+  status           DocumentProcessingStatus @default(PENDING)
+  processingStep   Int                      @default(1) // 1 to 5 mapped to pipeline steps
+  errorMessage     String?
+  rawText          String?                  @db.Text
+  
+  // High-level summary stats
+  summary          String?                  @db.Text
+  riskScore        Int?                     @default(0) // Calculated risk score (0-100)
+  
+  // Relations
+  pages            DocumentPage[]
+  findings         Finding[]
+  chatMessages     ChatMessage[]
+
+  createdAt        DateTime                 @default(now())
+  updatedAt        DateTime                 @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+model DocumentPage {
+  id         String   @id @default(uuid())
+  documentId String
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  pageNumber Int
+  text       String   @db.Text
+
+  createdAt  DateTime @default(now())
+
+  @@unique([documentId, pageNumber])
+  @@index([documentId])
+}
+
+model Finding {
+  id                 String             @id @default(uuid())
+  documentId         String
+  document           Document           @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  
+  type               FindingType        // RISK, DEADLINE, OBLIGATION, KEY_CLAUSE
+  category           String             // e.g. "Termination", "Indemnity", "Payment", "Liability"
+  title              String
+  explanation        String             @db.Text
+  
+  // Obligation & contractual parameters
+  responsibleParty   String?            // e.g., "Vendor", "Licensee", "Both"
+  trigger            String?            // e.g., "Receipt of formal invoice", "Material breach"
+  period             String?            // e.g., "30 calendar days", "Within 14 business days"
+  dueDate            String?            // "Unresolved" if missing explicit calendar date, or specific date
+  suggestedAction    String?            @db.Text
+  
+  // Deterministic source grounding
+  exactSourceQuote   String             @db.Text
+  pageNumber         Int?               // Exact verified page number
+  clauseReference    String?            // e.g., "Clause 14.2", "Section 9(b)"
+  
+  // Strict verification audit
+  verificationStatus VerificationStatus @default(UNVERIFIED) // VERIFIED or FAILED
+  matchOffsetStart   Int?               // Exact character offset start in raw parsed text
+  matchOffsetEnd     Int?               // Exact character offset end in raw parsed text
+  
+  // Specific contextual conversations for this finding
+  chatMessages       ChatMessage[]
+
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  @@index([documentId, type])
+  @@index([verificationStatus])
+}
+
+model ChatMessage {
+  id          String    @id @default(uuid())
+  documentId  String
+  document    Document  @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  findingId   String?
+  finding     Finding?  @relation(fields: [findingId], references: [id], onDelete: Cascade)
+  
+  role        String    // "user" | "assistant" | "system"
+  content     String    @db.Text
+  
+  // Legal safeguard metadata
+  hasDisclaimer Boolean @default(true)
+  jargonTerms   Json?   // Identified legal jargon with plain English definitions
+  
+  createdAt   DateTime  @default(now())
+
+  @@index([documentId])
+  @@index([findingId])
+}
+
+model AdvocateDirectory {
+  id              String   @id @default(uuid())
+  name            String
+  barCouncilRegNo String   @unique // e.g., "D/1234/2015"
+  firmName        String?
+  specialization  String   // e.g., "Commercial Contracts & M&A", "IP & Technology Law"
+  city            String   // e.g., "New Delhi", "Bengaluru", "Mumbai"
+  experienceYears Int
+  rating          Float    @default(5.0)
+  reviewCount     Int      @default(0)
+  contactEmail    String
+  phone           String?
+  isVerified      Boolean  @default(true)
+  availableForCall Boolean @default(true)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([specialization])
+  @@index([city])
+}

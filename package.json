@@ -1,0 +1,12 @@
+{
+  "name": "integrax",
+  "version": "1.0.0",
+  "private": true,
+  "description": "IntegraX — Legal & Business Document Intelligence Platform",
+  "scripts": {
+    "dev": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build",
+    "start": "npm --prefix frontend run start",
+    "install:all": "npm --prefix frontend install"
+  }
+}
